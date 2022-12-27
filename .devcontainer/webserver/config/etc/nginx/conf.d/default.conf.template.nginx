@@ -1,0 +1,183 @@
+# Upstream config
+# More info: http://nginx.org/en/docs/http/ngx_http_upstream_module.html
+upstream frontend {
+  server frontend:${FRONTEND_CONNECTION_PORT};
+}
+
+upstream backend {
+  server backend:${BACKEND_CONNECTION_PORT};
+}
+
+upstream backend-fpm {
+  server backend:${BACKEND_FPM_CONNECTION_PORT};
+}
+
+upstream phpmyadmin {
+  server phpmyadmin:80;
+}
+
+# upstream frontendSSL {
+#   server frontend:443;
+# }
+
+# upstream backendSSL {
+#   server backend:443;
+# }
+
+error_log  /var/log/nginx/error.log debug;
+access_log /var/log/nginx/access.log;
+
+# Frontend (Served with Vite) and Backend (Served with Artisan)
+server {
+    listen 80;
+    server_name ${NGINX_HOST};
+
+    location / {
+        proxy_pass http://frontend;
+    }
+    
+    location /sockjs-node {
+        proxy_pass http://frontend;
+        proxy_set_header Host $host;
+
+        # The following lines make the URL type "ws://localhost/sockjs-node/" work right 
+        # This way we managed to enable the hot-reload of vite.
+        proxy_redirect off;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location ~ /api(\/..*)$ {
+      proxy_pass http://backend/api$1;
+      proxy_set_header Host localhost;
+    }    
+
+    location /api {
+      proxy_pass http://backend/;
+      proxy_set_header Host localhost;
+    }
+}
+
+# Backend (FPM)
+server {
+    listen 81;
+    server_name ${NGINX_HOST};
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    # Default index pages
+    index index.php;
+
+    # Default character set
+    charset utf-8;
+
+    # Root for / project
+    root /app/public;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+        gzip_static on;
+        absolute_redirect off;
+    }
+
+    location ~ \.php$ {
+       fastcgi_split_path_info ^(.+\.php)(/.+)$;
+       fastcgi_pass backend-fpm;
+       fastcgi_index index.php;
+       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+       include fastcgi_params;
+    }
+
+    location /api {
+      alias /app/public;
+      try_files $uri $uri/ @laravelapi;
+      absolute_redirect off;
+
+       location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass backend-fpm;
+        fastcgi_param SCRIPT_FILENAME $request_filename;
+      }
+    }
+
+    location @laravelapi {
+      #rewrite /api/(.*)?$ /index.php?$is_args$args last;
+      rewrite /api(.*)?$ /index.php?$is_args$args last;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+    
+    error_page 404 /index.php;
+    
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }       
+}
+
+# PhpMyAdmin
+server {
+  listen 8080;
+  server_name localhost;
+
+  location / {
+    proxy_pass http://phpmyadmin;
+    
+    proxy_set_header Host $host;
+    #proxy_set_header Host localhost;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $server_name;
+
+    # Only accessible through localhost
+    if ($host != localhost) {
+      return 403;
+    }
+  }
+}
+
+
+# This still does not work #
+# server {
+#     listen 443 ssl;
+#     #listen [::]:443 ssl;
+#     server_name ${NGINX_HOST};
+
+#     ssl_certificate     /etc/ssl/cacert.pem;
+#     ssl_certificate_key /etc/ssl/server.key;
+#     ssl_trusted_certificate  /etc/ssl/server.pem;
+
+#     location / {
+#         proxy_pass https://frontendSSL;
+#         #proxy_set_header Host $host;
+#     }
+    
+#     location /sockjs-node {
+#         proxy_pass https://frontendSSL;
+#         proxy_set_header Host $host;
+
+#         # Las lienas a continuación hace que funcione las URL tipo ws://localhost/sockjs-node/..
+#         # Así conseguimos habilitar el hot-reload de vite.
+#         proxy_redirect off;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection "Upgrade";
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Host $server_name;
+#         proxy_cache_bypass $http_upgrade;
+#     }
+
+#     location /api/ {
+#          proxy_pass http://backendSSL/;
+#          proxy_set_header Host localhost;
+#     }
+# }

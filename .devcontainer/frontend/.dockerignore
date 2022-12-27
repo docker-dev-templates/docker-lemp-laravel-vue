@@ -1,0 +1,2 @@
+#.dockerignore 
+.frontend.env
