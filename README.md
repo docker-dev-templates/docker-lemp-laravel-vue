@@ -55,7 +55,6 @@ This services use the following ports.
 | phpMyAdmin          | http://localhost:8080           |                                               |      
 
 - Nginx is being used to do reverse proxy to route backend, frontend and phpMyAdmin services.
-- The URL http://localhost:8000/api/ returns a 404 by default if nothing is requested from the API.
 - The backend is configured to be served in the development environment from both Artisan and FPM. This is to check that everything works correctly and to be able to test in the development environment. In the ```.devcontainer/backend/docker-entrypoint.sh``` path you can configure how to serve the application during development.
 
 ## 3. How to use this repository?
