@@ -48,7 +48,6 @@ services:
     image: phpmyadmin/phpmyadmin:latest
     environment:
       - PMA_PMADB=phpmyadmin
-    user: ${UID}:${UID}
     restart: unless-stopped
     expose:
       - 80
