@@ -122,7 +122,7 @@ To generate the Vue+Vite project uses the command:
 ./.generate_first_time_frontend.sh
 ``` 
 
-:information_source: **See [frontend & backend projects](#5-frontend--backend-projects)** for more details.
+:information_source: **See [frontend & backend projects](#6-frontend--backend-projects)** for more details.
 
 ### 3.4. Deploy containers for development
 - **Compose up** command:
