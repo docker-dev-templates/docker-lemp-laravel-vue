@@ -1,6 +1,5 @@
 # Env files
-.devcontainer/backend/.backend.env
-.devcontainer/mariadb/.mariadb.env
+.devcontainer/.env
 
 # DB volume
 .devcontainer/mariadb/data/db/mysql/*

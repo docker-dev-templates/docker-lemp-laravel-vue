@@ -70,7 +70,7 @@ Después de clonar puedes cambiar o eliminar el origen remoto de este repositori
 ### 3.2. Configura las variables de entorno
 - En primer lugar debes agregar a tu archivo .bashrc o .zshrc las siguientes variables de entorno.
 
-Abre .bashrc o .zshrc con un editor de texto como nano:
+Abre ```.bashrc``` o ```.zshrc``` con un editor de texto como nano:
 ```sh
 cd ~
 nano .bashrc
@@ -84,15 +84,22 @@ export USERNAME="$USER"
 export PWD="$PWD"
 ```
 
-- Debes configurar la variable```PROJECT_NAME``` en  ```.devcontainer/.env```
+En segundo lugar, debes editar el archivo de entorno docker compose para configurar los servicios:
+- Copia ```.devcontainer/.example.env``` a ```.devcontainer/.env``` Aquí configurarás todo lo necesario para que los servicios del contenedor funcionen correctamente:
+‎
 
-- Copia ```.devcontainer/mariadb/.mariadb.example.env``` a ```.devcontainer/mariadb/.mariadb.env```
-  - Cambia los datos de conexión a la base de datos del usuario root y del usuario dev en el archivo ```.mariadb.env```
+  - Debes configurar la variable```PROJECT_NAME```.
+  ‎
 
-- Copia ```.devcontainer/backend/.backend.example.env``` a ```.devcontainer/backend/.backend.env```
+  - Puedes cambiar la variable ```NGINX_HOST```, por defecto está configurada como ```localhost```. Si necesita cambiar la configuración de NGINX puede hacerlo desde el archivo ```.devcontainer/webserver/config/nginx/conf.d/default.conf.template.nginx```.
+  ‎
+
+  - Cambia los datos de conexión a la base de datos del usuario root y del usuario dev en las variables ```CONFIG_MARIADB_ROOT_PASSWORD``` y ```CONFIG_MARIADB_PASSWORD```.
+    - También puede establecer la variable de nombre de usuario ```CONFIG_MARIADB_USER``` de MariaDB, que es el usuario que se utiliza en Laravel por defecto. 
+  ‎
+
   - Configura las variables de entorno de Laravel ([más información](https://laravel.com/docs/9.x/configuration))
-
-- Puedes cambiar la variable ```NGINX_HOST``` en ```.webserver.env```, está configurado por defecto con ```localhost```. Si necesitas cambiar la configuración de ```NGINX```puedes hacerlo en el archivo ```.devcontainer/webserver/config/nginx/conf.d/default.conf.template.nginx```.
+  ‎
 
 :information_source: **Ver [configuración](#4-configuración)** para más detalles.
 
@@ -147,90 +154,204 @@ export PWD="$PWD"
 
 ### 4.1. Variables de entorno de Docker Compose
 
-Las variables de entorno para el fichero docker-compose se encuentran en ```.devcontainer/.env``` aquí se pueden configurar los puertos de los servicios. Se recomienda dejarlos como están y solo cambiar el nombre del proyecto en este archivo. En caso de querer cambiar algún puerto se recomienda configurar únicamente los puertos externos donde se va a conectar a los servicios.
+El archivo de variables de entorno utilizado para docker-compose y los contenedores se encuentra en ```.devcontainer/.env``` aquí puedes configurar todos los servicios. En caso de que quieras cambiar algún puerto se recomienda que solo configures los puertos externos donde te vas a conectar a los servicios.
 
 ```properties
-PROJECT_NAME=ProjectName # ✏️ Escribe aquí el nombre del proyecto
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                   DOCKER COMPOSE ENV VARS                           #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+### DOCKER-COMPOSE ENV ###
+# ℹ https://docs.docker.com/compose/environment-variables/#the-env-file
+
+PROJECT_NAME=ProjectName # ✏️ Writes here your project name
 COMPOSE_PROJECT_NAME=${PROJECT_NAME}_devcontainer
 
 ### NGINX Webserver ###
-# Puerto para conectarse a los servicios Frontend y Backend enrutados por nginx 
+# Port to connect to Frontend and Backend services routed by nginx 
 FRONTEND_BACKEND_EXTERNAL_PORT=8000  # (http://localhost:8000)
-BACKEND_FPM_EXTERNAL_PORT=8001       # Backend servido con FPM (http://localhost:8001)
+BACKEND_FPM_EXTERNAL_PORT=8001       # This is the backend served with FPM (http://localhost:8001) 
 
 ### MariaDB ###
-# Puerto para conectar al servidor de la base de datos
+# Port to connect to the database server
 MARIADB_EXTERNAL_PORT=3306
 
 ### PHP MY ADMIN ###
-# Puerto para conectar a phpMyAdmin 
+# Port to connect to phpMyAdmin 
 PHPMYADMIN_EXTERNAL_PORT=8080       # (http://localhost:8080)
 
-# 🟡 No toque esta configuración a menos que sepa lo que está haciendo. 🟡 #
+# It is recommended to not touch internal ports in the following docker configuration
+
 ### Backend ###
-# Puerto utilizado por el contenedor backend para la red interna de contenedores
+# Port used by the backend container for internal docker network
 BACKEND_EXPOSE_PORT=8080 
 BACKEND_FPM_EXPOSE_PORT=9001
 
 ### Frontend ###
-# Puerto utilizado por el contenedor frontend para la red interna de contenedores
+# Port used by the frontend container for internal docker network
 FRONTEND_EXPOSE_PORT=8080 
 NODE_DEVELOPMENT=development
 ```
 
 > **Nota:** Asegúrate de cambiar el **nombre del proyecto** en el archivo ```.devcontainer/.env```. Muchos parámetros de docker se construyen a partir de esta variable de entorno. Además, el código fuente de los proyectos Laravel y Vue se ubicarán en carpetas con los nombres: ```projectName_backend``` y ```projectName_frontend```.
 
+En las secciones siguientes vamos a configurar variables que serán pasadas a sus respectivos contenedores usando su propio fichero .env ubicados en: 
+
+
+- ```.devcontainer/backend/.backend.env```
+- ```.devcontainer/frontend/.frontend.env```
+- ```devcontainer/mariadb/.mariadb.env```
+- ```.devcontainer/webserver/.webserver.env```
+
+
+No necesitarás editar ninguno de estos archivos a menos que desees exponer otras opciones de configuración que no se proporcionan por defecto. Simplemente continúa editando el archivo ```.devcontainer/.env```  al seguir los siguientes apartados de configuración.
+
 ### 4.2. Variables de entorno en el contenedor del servidor web (NGINX)
 
-El archivo se encuentra en ```.devcontainer/webserver/.webserver.env``` la variable más importante a tener en cuenta es ``NGINX_HOST`` está configurada con localhost por defecto.
+La variable más importante a tener en cuenta es ```NGINX_HOST```, por defecto está configurada como localhost.
 
 
 ```properties
-NGINX_HOST=localhost # ✏️ Puedes editar esto (ej.: NGINX_HOST=rai.ddns.net)
-FRONTEND_CONNECTION_PORT=${FRONTEND_EXPOSE_PORT}
-BACKEND_CONNECTION_PORT=${BACKEND_EXPOSE_PORT}
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                      NGINX CONTAINER ENV VARS                       #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Environment Variables for NGINX Docker Container
+CONFIG_NGINX_HOST=localhost # ✏️ You can edit this (e.g.: NGINX_HOST=rai.ddns.net)
+CONFIG_FRONTEND_CONNECTION_PORT=${FRONTEND_EXPOSE_PORT}
+CONFIG_BACKEND_CONNECTION_PORT=${BACKEND_EXPOSE_PORT}
+CONFIG_BACKEND_FPM_CONNECTION_PORT=${BACKEND_FPM_EXPOSE_PORT}
 ```
 
 ### 4.3. Variables de entorno en el contenedor de base de datos (MariaDB)
-Copia  ```.devcontainer/mariadb/.mariadb.example.env``` a ```.devcontainer/mariadb/.mariadb.env```
-
-```properties
-### Variables de entorno para el contenedor Docker MariaDB ###
-# Más información: https://mariadb.com/kb/en/mariadb-docker-environment-variables/
-
-MARIADB_CONNECTION=mysql
-MARIADB_HOST=${PROJECT_NAME}_mariadb
-MARIADB_ROOT_USER=root
-MARIADB_ROOT_PASSWORD=qwerty # ✏️ CHANGE THIS PASSWORD
-MARIADB_USER=dev
-MARIADB_PASSWORD=dev # ✏️ CHANGE THIS PASSWORD
-MARIADB_ROOT_HOST=172.0.0.0/255.0.0.0
-MARIADB_DATABASE=${PROJECT_NAME}_bd
-```
 Aquí puedes cambiar las contraseñas de root y de usuario. Por defecto ```MARIADB_USER``` está configurado como ```dev``` pero puedes cambiarlo por el nombre de usuario que quieras.
 
-La base de datos se creará utilizando ```PROJECT_NAME```, a partir de las variables de entorno de docker compose.
+```properties
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                      DB CONTAINER ENV VARS                          #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Environment Variables for MariaDB Docker Container
+# More info: https://mariadb.com/kb/en/mariadb-docker-environment-variables/
+
+CONFIG_MARIADB_CONNECTION=mysql
+CONFIG_MARIADB_HOST=${PROJECT_NAME}_mariadb
+CONFIG_MARIADB_ROOT_USER=root
+CONFIG_MARIADB_ROOT_PASSWORD=qwerty # ✏️ CHANGE THIS PASSWORD
+CONFIG_MARIADB_USER=dev
+CONFIG_MARIADB_PASSWORD=dev # ✏️ CHANGE THIS PASSWORD
+CONFIG_MARIADB_ROOT_HOST=172.0.0.0/255.0.0.0
+CONFIG_MARIADB_DATABASE=${PROJECT_NAME}_bd
+```
+
+
+La base de datos se creará utilizando ```PROJECT_NAME``` como prefijo.
 
 ### 4.4. Variables de entorno en el contenedor backend (Laravel)
-Copia ```.devcontainer/backend/.backend.example.env``` a ```.devcontainer/backend/.backend.env```
+<details>
+ <summary>Mostrar sección de configuración del backend</summary>
 
-Las variables de entorno en este contenedor se utilizará para la configuración de Laravel, ignorando el archivo original ```.env``` ubicado en la carpeta del proyecto.
+```sh
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                   BACKEND CONTAINER ENV VARS                        #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+### Environment Variables for Backend container ###
 
-> **Nota:** Debes asegurarte de que los datos de conexión a la base de datos se corresponden con los datos ubicados en las variables de entorno del contenedor MariaDB en el fichero ```.devcontainer/mariadb/.mariadb.env```
+### Docker Entrypoint Configuration ###
+CONFIG_BACKEND_LISTENING_PORT=${BACKEND_EXPOSE_PORT} # Serves Laravel project using artisan in this port
+CONFIG_BACKEND_FPM_LISTENING_PORT=${BACKEND_FPM_EXPOSE_PORT} # Serves Laravel project using FPM in this port
+
+### PHP OPcache Configuration
+CONFIG_PHP_OPCACHE_ENABLE=1
+CONFIG_PHP_OPCACHE_MAX_ACCELERATED_FILES="10000"
+CONFIG_PHP_OPCACHE_MEMORY_CONSUMPTION="256M"
+CONFIG_PHP_OPCACHE_MAX_WASTED_PERCENTAGE="10"
+
+# ❌ USE VALUE "1" ONLY IN DEVELOPMENT ENVIRONMENTS ❌
+# This allows us to make changes to our code. If you’re using a Docker volume, 
+# it means that OPcache will respect file timestamps and your changes will reflect immediately.
+# In a production environment that’s not ideal and we are losing the cache features from OPcache.
+CONFIG_PHP_OPCACHE_VALIDATE_TIMESTAMPS="1"
+
+### Laravel Configuration ###
+# More info: https://laravel.com/docs/9.x/configuration
+
+LARAVEL_APP_NAME=${PROJECT_NAME}_API
+LARAVEL_APP_ENV=local
+LARAVEL_APP_KEY=base64:10ygXpzBj4lgDpee1JGej18sqZNv5A2j7hB79sD2t8o # ✏️ FILL APP KEY FROM LARAVEL
+LARAVEL_APP_DEBUG=true
+LARAVEL_APP_URL=http://${CONFIG_NGINX_HOST}
+
+LARAVEL_LOG_CHANNEL=stack
+LARAVEL_LOG_DEPRECATIONS_CHANNEL=null
+LARAVEL_LOG_LEVEL=debug
+
+LARAVEL_DB_CONNECTION=mysql
+LARAVEL_DB_HOST=${CONFIG_MARIADB_HOST}
+LARAVEL_DB_PORT=3306
+LARAVEL_DB_DATABASE=${CONFIG_MARIADB_DATABASE}
+
+LARAVEL_DB_USERNAME=${CONFIG_MARIADB_USER}
+LARAVEL_DB_PASSWORD=${CONFIG_MARIADB_PASSWORD}
+
+LARAVEL_BROADCAST_DRIVER=log
+LARAVEL_CACHE_DRIVER=file
+LARAVEL_FILESYSTEM_DISK=local
+LARAVEL_QUEUE_CONNECTION=sync
+LARAVEL_SESSION_DRIVER=file
+LARAVEL_SESSION_LIFETIME=120
+
+LARAVEL_MEMCACHED_HOST=127.0.0.1
+
+LARAVEL_REDIS_HOST=127.0.0.1
+LARAVEL_REDIS_PASSWORD=null
+LARAVEL_REDIS_PORT=6379
+
+LARAVEL_MAIL_MAILER=smtp
+LARAVEL_MAIL_HOST=mailhog
+LARAVEL_MAIL_PORT=1025
+LARAVEL_MAIL_USERNAME=null
+LARAVEL_MAIL_PASSWORD=null
+LARAVEL_MAIL_ENCRYPTION=null
+LARAVEL_MAIL_FROM_ADDRESS="hello@example.com"
+LARAVEL_MAIL_FROM_NAME="${LARAVEL_APP_NAME}"
+
+LARAVEL_AWS_ACCESS_KEY_ID=
+LARAVEL_AWS_SECRET_ACCESS_KEY=
+LARAVEL_AWS_DEFAULT_REGION=us-east-1
+LARAVEL_AWS_BUCKET=
+LARAVEL_AWS_USE_PATH_STYLE_ENDPOINT=false
+
+LARAVEL_PUSHER_APP_ID=
+LARAVEL_PUSHER_APP_KEY=
+LARAVEL_PUSHER_APP_SECRET=
+LARAVEL_PUSHER_HOST=
+LARAVEL_PUSHER_PORT=443
+LARAVEL_PUSHER_SCHEME=https
+LARAVEL_PUSHER_APP_CLUSTER=mt1
+
+LARAVEL_VITE_PUSHER_APP_KEY="${LARAVEL_PUSHER_APP_KEY}"
+LARAVEL_VITE_PUSHER_HOST="${LARAVEL_PUSHER_HOST}"
+LARAVEL_VITE_PUSHER_PORT="${LARAVEL_PUSHER_PORT}"
+LARAVEL_VITE_PUSHER_SCHEME="${LARAVEL_PUSHER_SCHEME}"
+LARAVEL_VITE_PUSHER_APP_CLUSTER="${LARAVEL_PUSHER_APP_CLUSTER}"
+
+### OCTANE Configuration ###
+LARAVEL_OCTANE_SERVER=swoole
+```
+</details>
+ ‎
+
+En este bloque puedes configurar las variables de entorno que necesita el contenedor backend y que utiliza Laravel. Este último ignorará el fichero ```.env``` original ubicado en la carpeta de código fuente de Laravel. Además de esto, exponemos algunas variables para configurar la extensión ```OPcache``` de php.
 
 - [Más información sobre la configuración de Laravel](https://laravel.com/docs/9.x/configuration)
+- [Más información sobre la configuración de OPcache](https://www.php.net/manual/es/opcache.configuration.php)
 
 ### 4.5. Variables de entorno en el contenedor frontend (Vue + Vite)
 Por el momento no es necesario prestar atención a la configuración en esta sección, ya que se utiliza para transmitir algunos datos que ya se encuentran en el archivo de variables de entorno de ```docker compose```. 
 
-### 4.6. Sobre las variables de entorno
-Con el tiempo refactorizaré los archivos de variables de entorno para evitar tener que configurar más de uno, evitar errores y poder propagar esta configuración correctamente a todos los servicios.
-
-### 4.7. Configuración de NGINX
+### 4.6. Configuración de NGINX
 El archivo de configuración se encuentra en ```.devcontainer/webserver/config/etc/nginx/conf.d/default.conf.template.nginx ```. Si necesitas cambiar cualquier cosa de su configuración lo puedes hacer desde aquí.
 
-### 4.8. Configuración de PHP
-Puedes encontrar los archivos de configuración de php en el directorio ```.devcontainer/backend/config/etc/php/conf.d``` En esta ruta puedes configurar el archivo php.ini, así como el puerto al que conecta XDebug, entre otras opciones. 
+### 4.7. Configuración de PHP
+Puedes encontrar los archivos de configuración de php en el directorio ```.devcontainer/backend/config/etc/php/conf.d``` En esta ruta puedes configurar el archivo ```php.ini```, así como el puerto al que conecta ```XDebug```, entre otras opciones. Algunos de los valores de configuración de ```OPcache``` se recogen desde las variables de entorno configuradas en ```.devcontainer/.env```
 
 Los archivos de configuración de la ruta ```.devcontainer/backend/config/etc/php-fpm.d/``` corresponden al servicio [FPM](https://www.stackscale.com/es/blog/php-fpm-php-webs-alto-trafico/) de PHP. 
 
@@ -254,7 +375,7 @@ El archivo ```.devcontainer/backend/docker-entrypoint.sh``` se ejecuta nada más
 
 Recuerda que en entornos de producción lo deseable es servir la aplicación de Laravel con FPM u otras opciones como Laravel Octane con Swoole.
 
-### 5. Algunas consideraciones sobre la base de datos y phpMyAdmin 
+## 5. Algunas consideraciones sobre la base de datos y phpMyAdmin 
 Sólo se puede acceder al usuario ```root``` de la base de datos si conectamos desde una red que pertenezca a la de nuestro network de contenedores. 
 
 Según las pruebas que he hecho está bien configurado, por lo que no necesitas preocuparte por esto aunque estés usando WSL 2 en Windows. Vas a ser capaz de acceder desde Windows utilizando tu cliente de ```mariaDB```  o usando ```phpMyAdmin``` desde el navegador.
