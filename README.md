@@ -18,7 +18,7 @@ All requisites should be available for your distribution. The most important are
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/engine/installation/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
-* [Visutal Studio Code](https://https://code.visualstudio.com)<font size="2"> (You can use whatever IDE allows you to work inside containers)</font>
+* [Visual Studio Code](https://https://code.visualstudio.com)<font size="2"> (You can use whatever IDE allows you to work inside containers)</font>
 
 Check if `docker-compose` is already installed by entering the following command: 
 

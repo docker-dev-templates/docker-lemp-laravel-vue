@@ -14,7 +14,7 @@ Este proyecto ha sido creado principalmente para Unix (Linux/MacOS). Quizás pod
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/engine/installation/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
-* [Visutal Studio Code](https://https://code.visualstudio.com)<font size="2"> (Puedes usar cualquier IDE que te permita trabajar dentro de contenedores)</font>
+* [Visual Studio Code](https://https://code.visualstudio.com)<font size="2"> (Puedes usar cualquier IDE que te permita trabajar dentro de contenedores)</font>
 
 Comprueba si tienes instalado `docker-compose` escribiendo el siguiente comando: 
 
