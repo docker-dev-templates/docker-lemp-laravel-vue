@@ -112,17 +112,17 @@ Secondly you should be editing the docker compose environment file to setup the 
 :information_source: **See [configuration](#4-configuration)** for more details.
 
 ### 3.3. Generate new Laravel and Vue projects
-To generate a new Laravel project uses the command:
+- To generate a new Laravel project uses this command from the project root:
 ```sh
-./.generate_first_time_backend.sh
+sh -c bash_tools/scripts/generate_first_time_backend.sh
 ```
  
-To generate the Vue+Vite project uses the command:
+- To generate a new Vue+Vite project uses this command from the project root:
 ```sh
-./.generate_first_time_frontend.sh
+sh -c bash_tools/scripts/generate_first_time_frontend.sh
 ``` 
 
-:information_source: **See [frontend & backend projects](#6-frontend--backend-projects)** for more details.
+:information_source: **See [frontend & backend projects](#6-frontend--backend-projects)** for more details if you need to includes existing projects.
 
 ### 3.4. Deploy containers for development
 - **Compose up** command:
@@ -398,18 +398,18 @@ The images used in frontend and backend containers are used to work with Laravel
 Before composing up the containers it is important to have ready the folders with both projects, since frontend and backend containers will be mounting this folders as volumes.
 
 ### 6.1 First time project generation
-You can generate new Laravel and Vue projects using the bash scripts ```.generate_first_time_backend.sh``` and ```.generate_first_time_frontend.sh```. They are using docker images to generate the full projects.
+You can generate new Laravel and Vue projects using the bash scripts ```.bash_tools/scripts/generate_first_time_backend.sh``` and ```.bash_tools/scripts/generate_first_time_frontend.sh```. They are using docker images to generate the full projects.
 
-- To generate a **new Laravel project** uses the command:
+- To generate a **new Laravel project** uses this command from the project root:
 
 ```sh
-./.generate_first_time_backend.sh
+sh -c bash_tools/scripts/generate_first_time_backend.sh
 ```
  
-- To generate a **new Vue+Vite project** uses the command:
+- To generate a **new Vue+Vite project** uses this command from the project root:
 
 ```sh
-./.generate_first_time_frontend.sh
+sh -c bash_tools/scripts/generate_first_time_frontend.sh
 ``` 
 
 It is important to take into account that vite config file in ```.devcontainer/config/vite.config.template.js``` is mounted in the frontend container using volumes. When frontend container starts, it copy the file to ```projectName_frontend/vite.config.js``` using ```envsubst``` to converts environment variables to the data they are pointing. So if you are going to change it you must restart the container for them to take effect.

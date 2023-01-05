@@ -104,17 +104,17 @@ En segundo lugar, debes editar el archivo de entorno docker compose para configu
 :information_source: **Ver [configuración](#4-configuración)** para más detalles.
 
 ### 3.3. Genera nuevos proyectos Laravel y Vue
-Para generar un nuevo proyecto de Laravel usa el comando:
+Para generar un nuevo proyecto de Laravel usa este comando desde la raiz del proyecto:
 ```sh
-./.generate_first_time_backend.sh
+sh -c bash_tools/scripts/generate_first_time_backend.sh
 ```
  
-Para generar un nuevo proyecto de Vue usa el comando:
+Para generar un nuevo proyecto de Vue usa este comando desde la raiz del proyecto:
 ```sh
-./.generate_first_time_frontend.sh
+sh -c bash_tools/scripts/generate_first_time_frontend.sh
 ``` 
 
-:information_source: **Ver [proyectos frontend y backend](#6-proyectos-frontend-y-backend)** para más detalles.
+:information_source: **Ver [proyectos frontend y backend](#6-proyectos-frontend-y-backend)** para más detalles, incluso si necesitas añadir proyectos existentes.
 
 ### 3.4. Despliega los contenedores de desarrollo
 - **Compose up**: Comando para levantar los contenedores.
@@ -394,18 +394,18 @@ Las imágenes utilizadas en los contenedores frontend y backend sirven para trab
 Antes de componer los contenedores es importante tener listas las carpetas con ambos proyectos, ya que los contenedores frontend y backend se montarán estas carpetas como volúmenes.
 
 ### 6.1. Generación de proyectos por primera vez
-Puede generar nuevos proyectos Laravel y Vue utilizando los scripts bash ```.generate_first_time_backend.sh``` y ```.generate_first_time_frontend.sh```. Se utilizan imágenes de Docker para generar los proyectos, gracias a esto no necesitarás tener ninguna dependencia asociada a ellos en tu sistema.
+Puede generar nuevos proyectos Laravel y Vue utilizando los scripts bash ```.bash_tools/scripts/generate_first_time_backend.sh``` y ```.bash_tools/scripts/generate_first_time_frontend.sh```. Se utilizan imágenes de Docker para generar los proyectos, gracias a esto no necesitarás tener ninguna dependencia asociada a ellos en tu sistema.
 
-- Para generar un **nuevo proyecto de Laravel** usa el comando:
+- Para generar un **nuevo proyecto de Laravel** usa este comando desde la raíz del proyecto:
 
 ```sh
-./.generate_first_time_backend.sh
+sh -c bash_tools/scripts/generate_first_time_backend.sh
 ```
  
-- Para generar un **nuevo proyecto de Vue + Vite** usa el comando:
+- Para generar un **nuevo proyecto de Vue + Vite** usa este comando desde la raíz del proyecto:
 
-```
-./.generate_first_time_frontend.sh
+```sh
+sh -c bash_tools/scripts/generate_first_time_frontend.sh
 ```
 
 Es importante tener en cuenta que el fichero de configuración de vite en ```.devcontainer/config/vite.config.template.js``` está montado en el contenedor frontend usando volúmenes. Cuando el contenedor frontend arranca, copia el archivo a ```${PROJECT_NAME}_frontend/vite.config.js``` usando ```envsubst``` para convertir las variables de entorno a los datos a los que apuntan. Así que si vas a cambiarlo debes reiniciar el contenedor para que surtan efecto.
