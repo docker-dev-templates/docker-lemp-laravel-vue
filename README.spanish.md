@@ -422,5 +422,23 @@ git submodule add https://github.com/user/frontAPP ProjectName_frontend
 git submodule add https://github.com/user/backAPI ProjectName_backend
 ```
 
+Como los repositorios en los que se encuentran estos proyectos no incluyen los archivos de dependencias que necesitan (o al menos no debería), hemos preparado unos scripts que te ayudarán con esta tarea. 
+
+- Ejecuta este comando desde la raíz del proyecto para instalar las dependencias del **backend**:
+
+```sh
+sh -c bash_tools/scripts/install_dependencies_backend.sh
+```
+
+- Ejecuta este comando desde la raíz del proyecto para instalar las dependencias del **frontend**:
+
+```sh
+sh -c bash_tools/scripts/install_dependencies_frontend.sh
+```
+
+En el caso del backend también copiará el archivo de configuración de Laravel ```.env.example``` a ```.env``` para posteriormente generar una clave API para la aplicación.
+
+> **Nota:** No ejecutes estos scripts si tus proyectos ya fueron generados anteriormente con ```generate_first_time_backend.sh``` o ```generate_first_time_frontend.sh```ya que estos se generan con todas las dependencias que necesitan.
+
 ## 7. Contribuir a este repositorio
 Siéntete libre de contribuir a este proyecto con cualquier cambio. Haz un fork del repositorio y clónalo en tu ordenador, haz los cambios que creas oportunos y crea un [pull request](https://www.freecodecamp.org/espanol/news/como-hacer-tu-primer-pull-request-en-github/).

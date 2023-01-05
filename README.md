@@ -419,12 +419,30 @@ How to work with Laravel or Vue is out of scope of this document.
 ### 6.2 Including existing projects
 You can add your projects creating git submodules that points to them. Remember that folders name must be ```${PROJECT_NAME}_backend``` and ```${PROJECT_NAME}_frontend```. As said before, ```PROJECT_NAME``` can be set in ```./devcontainer/.env```.
 
-Write this commands to create git submodules from the project root
+Write this commands to create git submodules from the project root:
 
 ```sh
 git submodule add https://github.com/user/frontAPP ProjectName_frontend
 git submodule add https://github.com/user/backAPI ProjectName_backend
 ```
+
+As the repositories where these projects are located do not include the dependency files they need (or at least they shouldn't), we have prepared some scripts that will help you with this task.
+
+- Run this command from the root of the project to install the **backend** dependencies:
+
+```sh
+sh -c bash_tools/scripts/install_dependencies_backend.sh
+```
+
+- Run this command from the root of the project to install the **frontend** dependencies:
+
+```sh
+sh -c bash_tools/scripts/install_dependencies_frontend.sh
+```
+
+In the case of the backend it will also copy the Laravel configuration file ```.env.example``` to ```.env``` and then generate an API key for the application.
+
+> **Note:** Do not run these scripts if your projects were previously generated with ```generate_first_first_time_backend.sh``` or ```generate_first_time_frontend.sh``` as these are generated with all the dependencies they need.
 
 ## 7. Contributing to this repository
 Feel free to contribute to this project with any changes. Make a fork of the repository and clone it on your computer, make changes as you see fit and create a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
