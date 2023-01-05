@@ -25,7 +25,7 @@ services:
     networks:
       - project_network
 
-  # SERVIDOR BASE DE DATOS (Mariadb)
+  # DB Service (MariaDB)
   mariadb:
     image: mariadb:latest
     env_file:
@@ -38,12 +38,11 @@ services:
     volumes:
       - ./mariadb/config/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./mariadb/data/db/mysql:/var/lib/mysql
-      #- ./mariadb/logs/:/var/log/mysql
     container_name: ${PROJECT_NAME}_mariadb
     networks:
       - project_network
 
-  # GESTIÓN BD (phpmyadmin)
+  # DB Management (phpMyAdmin)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     environment:
@@ -59,7 +58,7 @@ services:
     networks:
       - project_network
 
-  # CONTENEDOR DEL BACKEND (API REST CON LARAVEL)
+  # Backend service (Laravel API Rest)
   backend:
     env_file:
       - backend/.backend.env
@@ -89,7 +88,7 @@ services:
     networks:
       - project_network
 
-  # CONTENEDOR DEL FRONT END (VUE+VITE)
+  # Frontend Service (Vue + Vite App)
   frontend:
     env_file:
       - frontend/.frontend.env
