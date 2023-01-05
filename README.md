@@ -281,7 +281,6 @@ CONFIG_PHP_OPCACHE_VALIDATE_TIMESTAMPS="1"
 
 LARAVEL_APP_NAME=${PROJECT_NAME}_API
 LARAVEL_APP_ENV=local
-LARAVEL_APP_KEY=base64:10ygXpzBj4lgDpee1JGej18sqZNv5A2j7hB79sD2t8o # ✏️ FILL APP KEY FROM LARAVEL
 LARAVEL_APP_DEBUG=true
 LARAVEL_APP_URL=http://${CONFIG_NGINX_HOST}
 
@@ -345,7 +344,9 @@ LARAVEL_OCTANE_SERVER=swoole
 </details>
  ‎
 
-In this block you can configure the environment variables needed by the backend container and used by Laravel. The latter will ignore the original ```.env``` file located in the Laravel source code folder. Besides this, we expose variables to config the php ```OPcache extension```.
+In this block you can configure the environment variables needed by the backend container and used by Laravel. The latter will ignore the values in the original ```.env``` file, located in the Laravel source code folder, if we setup the same variable name in our file. Besides this, we expose variables to config the php ```OPcache extension```.
+
+> **Note:** The APP key that Laravel generates with artisan will not be configured in this file and Laravel will read it from its own .env. We do this to save us configuration steps, when Laravel already fills in this data for us.
 
 - [More information about Laravel environment configuration](https://laravel.com/docs/9.x/configuration)
 - [More information about OPcache environment configuration](https://www.php.net/manual/es/opcache.configuration.php)
