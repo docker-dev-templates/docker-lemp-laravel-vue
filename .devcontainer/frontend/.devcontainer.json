@@ -3,7 +3,7 @@
     "dockerComposeFile": [
         "../docker-compose.yml"
     ],
-    "service": "backend",
+    "service": "frontend",
     "shutdownAction": "none",
     "extensions": [
         "dbaeumer.vscode-eslint"
