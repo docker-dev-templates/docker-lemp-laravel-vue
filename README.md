@@ -445,5 +445,7 @@ In the case of the backend it will also copy the Laravel configuration file ```.
 
 > **Note:** Do not run these scripts if your projects were previously generated with ```generate_first_first_time_backend.sh``` or ```generate_first_time_frontend.sh``` as these are generated with all the dependencies they need.
 
+> **Monorepositories:** I think it is possible to work in a [monorepo](https://www.atlassian.com/git/tutorials/monorepos) using this setup, instead of using git submodules, since each project is isolated in a folder and with its own docker-based environment tools. So, to do this you just put in the project the source code in the frontend and backend folders and let them coexist in a single git repository. It is up to you to decide how to manage the workflow with git and your projects.
+
 ## 7. Contributing to this repository
 Feel free to contribute to this project with any changes. Make a fork of the repository and clone it on your computer, make changes as you see fit and create a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).

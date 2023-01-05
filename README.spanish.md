@@ -441,5 +441,7 @@ En el caso del backend también copiará el archivo de configuración de Laravel
 
 > **Nota:** No ejecutes estos scripts si tus proyectos ya fueron generados anteriormente con ```generate_first_time_backend.sh``` o ```generate_first_time_frontend.sh```ya que estos se generan con todas las dependencias que necesitan.
 
+> **Monorepositorios:** Creo que es posible trabajar en un [monorepo](https://www.atlassian.com/es/git/tutorials/monorepos) usando esta configuración, en lugar de usar submódulos git, ya que cada proyecto está aislado en una carpeta y con sus propias herramientas de entorno basadas en dockers. Por lo tanto, para hacerlo sólo tienes que poner en el proyecto el código fuente en las carpetas del frontend y del backend y permíteles convivir en un único repositorio de git. Depende de ti decidir cómo gestionar el flujo de trabajo con git y tus proyectos.
+
 ## 7. Contribuir a este repositorio
 Siéntete libre de contribuir a este proyecto con cualquier cambio. Haz un fork del repositorio y clónalo en tu ordenador, haz los cambios que creas oportunos y crea un [pull request](https://www.freecodecamp.org/espanol/news/como-hacer-tu-primer-pull-request-en-github/).
